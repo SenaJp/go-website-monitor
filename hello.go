@@ -4,7 +4,11 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 )
+
+const monitoring = 3
+const delay = 5
 
 func main() {
 
@@ -44,13 +48,28 @@ func showMenu() {
 func readCommand() int {
 	var command int
 	fmt.Scan(&command)
+	fmt.Println("")
 
 	return command
 }
 
 func startMonitoring() {
 	fmt.Println("Monitoring...")
-	site := "https://random-status-code.herokuapp.com"
+	sites := []string{"https://random-status-code.herokuapp.com/", "https://www.alura.com.br"}
+
+	for i := 0; i < monitoring; i++ {
+		for i, site := range sites {
+			fmt.Println("Checking position", i, "the site is:", site)
+			testSite(site)
+		}
+		time.Sleep(delay * time.Second)
+		fmt.Println("")
+	}
+
+	fmt.Println("")
+}
+
+func testSite(site string) {
 	resp, _ := http.Get(site)
 
 	if resp.StatusCode == 200 {
