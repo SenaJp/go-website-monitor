@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 	"time"
+	"strconv"
 )
 
 const monitoring = 3
@@ -16,7 +17,7 @@ const delay = 5
 func main() {
 
 	showIntroduction()
-	readSitesToArchive()
+	
 	for {
 		showMenu()
 		command := readCommand()
@@ -83,8 +84,10 @@ func testSite(site string) {
 
 	if resp.StatusCode == 200 {
 		fmt.Println("O site", site, "foi carregado com sucesso")
+		logRegister(site, true)
 	} else {
 		fmt.Println("O site", site, "está com algum problema. StatusCode:", resp.StatusCode)
+		logRegister(site, false)
 	}
 }
 
@@ -113,4 +116,16 @@ func readSitesToArchive() []string {
 	file.Close()
 
 	return sites
+}
+
+func logRegister(site string, status bool) {
+	file, err := os.OpenFile("log.txt", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+
+	if err != nil {
+		fmt.Println("O erro encontrado foi:", err)
+	}
+
+	file.WriteString(time.Now().Format("02/01/2006 15:04:05") + " - " + site + "- online: " + strconv.FormatBool(status) + "\n")
+
+	file.Close()
 }
