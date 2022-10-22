@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -13,6 +16,7 @@ const delay = 5
 func main() {
 
 	showIntroduction()
+	readSitesToArchive()
 	for {
 		showMenu()
 		command := readCommand()
@@ -55,7 +59,8 @@ func readCommand() int {
 
 func startMonitoring() {
 	fmt.Println("Monitoring...")
-	sites := []string{"https://random-status-code.herokuapp.com/", "https://www.alura.com.br"}
+	sites := readSitesToArchive()
+
 
 	for i := 0; i < monitoring; i++ {
 		for i, site := range sites {
@@ -70,11 +75,42 @@ func startMonitoring() {
 }
 
 func testSite(site string) {
-	resp, _ := http.Get(site)
+	resp, err := http.Get(site)
+
+	if(err != nil) {
+		fmt.Println("Ocorreu um erro:", err)
+	}
 
 	if resp.StatusCode == 200 {
 		fmt.Println("O site", site, "foi carregado com sucesso")
 	} else {
 		fmt.Println("O site", site, "está com algum problema. StatusCode:", resp.StatusCode)
 	}
+}
+
+func readSitesToArchive() []string {
+	var sites []string
+
+	file, err := os.Open("sites.txt")
+
+	if err != nil {
+		fmt.Println("Ocorreu um erro:", err)
+		
+	}
+
+	reader := bufio.NewReader(file)
+	for {
+		line, err := reader.ReadString('\n')
+		line = strings.TrimSpace(line)
+
+		sites = append(sites, line)
+	
+		if err == io.EOF {
+			break
+		}
+	}
+
+	file.Close()
+
+	return sites
 }
