@@ -4,11 +4,12 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
-	"strconv"
 )
 
 const monitoring = 3
@@ -27,6 +28,7 @@ func main() {
 			startMonitoring()
 		case 2:
 			fmt.Println("Show logs")
+			showLogs()
 		case 0:
 			fmt.Println("Exit")
 			os.Exit(0)
@@ -128,4 +130,14 @@ func logRegister(site string, status bool) {
 	file.WriteString(time.Now().Format("02/01/2006 15:04:05") + " - " + site + "- online: " + strconv.FormatBool(status) + "\n")
 
 	file.Close()
+}
+
+func showLogs(){
+	file, err := ioutil.ReadFile("log.txt")
+
+	if err != nil {
+		fmt.Println("O erro encontrado foi:", err)
+	}
+
+	fmt.Println(string(file))
 }
